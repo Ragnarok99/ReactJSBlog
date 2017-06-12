@@ -10655,6 +10655,13 @@ const api = {
         const data = yield response.json();
         return data;
       })();
+    },
+    getPosts(id = 1) {
+      return _asyncToGenerator(function* () {
+        const response = yield (0, _isomorphicFetch2.default)(`${baseURL}/posts/?userId=${id}`);
+        const data = yield response.json();
+        return data;
+      })();
     }
   }
 };
@@ -10699,6 +10706,10 @@ var _Error = __webpack_require__(224);
 
 var _Error2 = _interopRequireDefault(_Error);
 
+var _Profile = __webpack_require__(227);
+
+var _Profile2 = _interopRequireDefault(_Profile);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function Pages() {
@@ -10711,9 +10722,9 @@ function Pages() {
       component: _Home2.default
     }),
     _react2.default.createElement(_reactRouter.Match, {
-      pattern: '/about',
+      pattern: '/user/:id',
       exactly: true,
-      component: _About2.default
+      component: _Profile2.default
     }),
     _react2.default.createElement(_reactRouter.Miss, {
       component: _Error2.default
@@ -26979,12 +26990,6 @@ class Home extends _react.Component {
           'Loading posts...'
         ),
         this.state.posts.map(post => _react2.default.createElement(_Post2.default, _extends({ key: post.id }, post)))
-      ),
-      _react2.default.createElement(
-        _reactRouter.Link,
-        {
-          to: '/about' },
-        'Go to about'
       )
     );
   }
@@ -27011,6 +27016,8 @@ var _api = __webpack_require__(94);
 
 var _api2 = _interopRequireDefault(_api);
 
+var _reactRouter = __webpack_require__(23);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
@@ -27022,7 +27029,7 @@ class Post extends _react.Component {
 
     this.state = {
       loading: true,
-      user: {},
+      user: props.user || null,
       comments: []
     };
   }
@@ -27031,13 +27038,12 @@ class Post extends _react.Component {
     var _this = this;
 
     return _asyncToGenerator(function* () {
-      const [user, comments] = yield Promise.all([_api2.default.users.getSingle(_this.props.userId), _api2.default.posts.getComments(_this.props.id)]);
+      const [user, comments] = yield Promise.all([!_this.state.user ? _api2.default.users.getSingle(_this.props.userId) : Promise.resolve(null), _api2.default.posts.getComments(_this.props.id)]);
 
       _this.setState({
         loading: false,
-        user: user,
-        comments
-      });
+        user: user || _this.state.user,
+        comments });
     })();
   }
 
@@ -27059,10 +27065,9 @@ class Post extends _react.Component {
       !this.state.loading && _react2.default.createElement(
         'div',
         null,
-        console.log(this.state.user),
         _react2.default.createElement(
-          'a',
-          { href: `//${this.state.user.website}`, target: '_blank', rel: 'nofollow' },
+          _reactRouter.Link,
+          { to: `/user/${this.state.user.id}` },
           this.state.user.name
         ),
         _react2.default.createElement(
@@ -27070,7 +27075,7 @@ class Post extends _react.Component {
           null,
           'Hay ',
           this.state.comments.length,
-          ' comentarios'
+          'comentarios'
         )
       )
     );
@@ -27085,6 +27090,123 @@ Post.PropTypes = {
 };
 
 exports.default = Post;
+
+/***/ }),
+/* 227 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _react = __webpack_require__(5);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _reactRouter = __webpack_require__(23);
+
+var _reactRouter2 = _interopRequireDefault(_reactRouter);
+
+var _Post = __webpack_require__(226);
+
+var _Post2 = _interopRequireDefault(_Post);
+
+var _api = __webpack_require__(94);
+
+var _api2 = _interopRequireDefault(_api);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
+
+class Profile extends _react.Component {
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      loading: true,
+      posts: [],
+      user: {}
+    };
+  }
+
+  componentDidMount() {
+    var _this = this;
+
+    return _asyncToGenerator(function* () {
+      const [user, posts] = yield Promise.all([_api2.default.users.getSingle(_this.props.params.id), _api2.default.users.getPosts(_this.props.params.id)]);
+
+      _this.setState({
+        posts,
+        user,
+        loading: false
+      });
+    })();
+  }
+  render() {
+    return _react2.default.createElement(
+      'section',
+      null,
+      _react2.default.createElement(
+        'h2',
+        null,
+        'Profile of ',
+        this.state.user.name
+      ),
+      _react2.default.createElement(
+        'fieldset',
+        null,
+        _react2.default.createElement(
+          'legend',
+          null,
+          'Basic Info'
+        ),
+        _react2.default.createElement('input', { type: 'email', value: this.state.user.email, disabled: true })
+      ),
+      this.state.user.address && _react2.default.createElement(
+        'fieldset',
+        null,
+        _react2.default.createElement(
+          'legend',
+          null,
+          'Address'
+        ),
+        _react2.default.createElement(
+          'address',
+          null,
+          this.state.user.address.street,
+          ' ',
+          _react2.default.createElement('br', null),
+          this.state.user.address.suite,
+          ' ',
+          _react2.default.createElement('br', null),
+          this.state.user.address.city,
+          ' ',
+          _react2.default.createElement('br', null),
+          this.state.user.address.zipcode,
+          ' ',
+          _react2.default.createElement('br', null)
+        )
+      ),
+      _react2.default.createElement(
+        'section',
+        null,
+        this.state.posts.map(post => _react2.default.createElement(_Post2.default, _extends({
+          key: post.id
+        }, post, {
+          user: this.state.user
+        })))
+      )
+    );
+  }
+}
+
+exports.default = Profile;
 
 /***/ })
 /******/ ]);

@@ -39,10 +39,7 @@ async componentDidMount(){
             {this.state.posts
               .map(post => <Post key={post.id} {...post} />)}
           </section>
-          <Link
-            to="/about">
-              Go to about
-            </Link>
+        
         </section>
     );
   }

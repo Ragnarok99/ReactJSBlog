@@ -3,6 +3,7 @@ import { Match, Miss, Link } from 'react-router';
 import Home from './Home.jsx';
 import About from './About.jsx';
 import Error404 from './Error404.jsx';
+import Profile from './Profile.jsx';
 
 function Pages() {
   return (
@@ -15,9 +16,9 @@ function Pages() {
       />
 
       <Match
-        pattern="/about"
+        pattern="/user/:id"
         exactly
-        component={About}
+        component={Profile}
       />
 
       <Miss
