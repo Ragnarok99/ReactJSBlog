@@ -3,6 +3,7 @@ import { Link } from 'react-router';
 import api from '../../api.js';
 import Post from '../../posts/containers/Post.jsx'
 
+import styles from './Page.css';
 
 class Home extends Component {
 
@@ -28,10 +29,8 @@ async componentDidMount(){
 
   render(){
     return (
-      <section name="Home">
-          <h1>Home</h1>
-
-          <section>
+      <section className={styles.section} name="Home">
+          <section className={styles.list}>
             {this.state.loading && (
               <h2>Loading posts...</h2>
             )}
